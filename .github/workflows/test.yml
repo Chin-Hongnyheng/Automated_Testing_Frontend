@@ -21,17 +21,28 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build app
+        run: npm run build
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Start frontend
-        run: npm run dev &
-
-      - name: Wait for frontend to start
-        run: npx wait-on http://localhost:5173
-
       - name: Run Playwright tests
         run: npx playwright test
+
+      - name: Upload test screenshots
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: e2e/screenshots/
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
 
       - name: Get committer email
         if: always()
@@ -55,6 +66,5 @@ jobs:
             Commit: ${{ github.sha }}
             Committer: ${{ github.actor }}
             Status: ${{ job.status }}
-
             Check details at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
