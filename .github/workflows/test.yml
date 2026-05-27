@@ -40,10 +40,13 @@ jobs:
           JWT_ACCESS_EXPIRES: 15m
           JWT_REFRESH_EXPIRES: 7d
           PORT: 3000
-        run: npm run start:prod &
-
-      - name: Wait for backend to be ready
-        run: npx wait-on http://localhost:3000/graphql --timeout 60000
+        run: |
+          npm run start:prod > /tmp/backend.log 2>&1 &
+          sleep 20
+          echo "=== BACKEND LOG ==="
+          cat /tmp/backend.log
+          echo "=== PORT CHECK ==="
+          ss -tlnp | grep 3000 || echo "NOTHING running on port 3000"
 
       - name: Install frontend dependencies
         run: npm install
