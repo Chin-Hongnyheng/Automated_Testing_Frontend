@@ -60,28 +60,15 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: Start frontend preview # ← ADD THIS
-        run: npm run preview &
-        env:
-          PORT: 4173
-
-      - name: Wait for frontend on port 4173 # ← ADD THIS
-        run: |
-          echo "Waiting for frontend on port 4173..."
-          for i in $(seq 1 30); do
-            if curl -s http://localhost:4173 > /dev/null 2>&1; then
-              echo "Frontend is up!"
-              break
-            fi
-            echo "Attempt $i/30 - not ready yet..."
-            sleep 2
-          done
+      # ← NO manual preview start here, playwright.config.ts handles it
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         run: npx playwright test
+        env:
+          CI: true # ← this triggers the webServer block in playwright.config.ts
 
       - name: Upload test screenshots
         if: always()
