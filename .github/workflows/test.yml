@@ -7,7 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout frontend code
         uses: actions/checkout@v4
@@ -41,7 +40,15 @@ jobs:
           PORT: 3000
         run: |
           npm run start:prod > /tmp/backend.log 2>&1 &
-          sleep 20
+          echo "Waiting for backend on port 3000..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "Backend is up!"
+              break
+            fi
+            echo "Attempt $i/30 - not ready yet..."
+            sleep 2
+          done
           echo "=== BACKEND LOG ==="
           cat /tmp/backend.log
           echo "=== PORT CHECK ==="
@@ -52,6 +59,23 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Start frontend preview # ← ADD THIS
+        run: npm run preview &
+        env:
+          PORT: 4173
+
+      - name: Wait for frontend on port 4173 # ← ADD THIS
+        run: |
+          echo "Waiting for frontend on port 4173..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:4173 > /dev/null 2>&1; then
+              echo "Frontend is up!"
+              break
+            fi
+            echo "Attempt $i/30 - not ready yet..."
+            sleep 2
+          done
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps

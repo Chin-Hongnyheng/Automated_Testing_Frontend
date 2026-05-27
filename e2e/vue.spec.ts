@@ -3,14 +3,15 @@ import { test, expect } from '@playwright/test'
 test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   // 1. REGISTER
   await page.goto('/register')
-  await page.getByTestId('username-input').fill('Nyheng3')
-  await page.getByTestId('email-input').fill('heng4@warehouse.com')
+  await page.getByTestId('username-input').fill('Nyheng5')
+  await page.getByTestId('email-input').fill('heng6@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('confirm-password-input').fill('Password123!')
   await page.screenshot({ path: 'e2e/screenshots/1-register-page.png' })
   await page.getByTestId('register-button').click()
 
   // 2. DASHBOARD
+  await page.waitForURL('**/dashboard', { timeout: 30000 }) // ← ADD THIS
   await expect(page).toHaveURL('/dashboard')
   await page.screenshot({ path: 'e2e/screenshots/2-dashboard.png' })
 
@@ -29,9 +30,10 @@ test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   await expect(page).toHaveURL('/login')
 
   // 6. LOGIN
-  await page.getByTestId('email-input').fill('heng4@warehouse.com')
+  await page.getByTestId('email-input').fill('heng6@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('login-button').click()
+  await page.waitForURL('**/dashboard', { timeout: 30000 }) // ← ADD THIS TOO
   await expect(page).toHaveURL('/dashboard')
   await page.screenshot({ path: 'e2e/screenshots/5-final-login-success.png' })
 })
