@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test'
 test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   // 1. REGISTER
   await page.goto('/register')
-  await page.getByTestId('username-input').fill('Nyheng1')
-  await page.getByTestId('email-input').fill('heng2@warehouse.com')
+  await page.getByTestId('username-input').fill('Nyheng3')
+  await page.getByTestId('email-input').fill('heng4@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('confirm-password-input').fill('Password123!')
   await page.screenshot({ path: 'e2e/screenshots/1-register-page.png' })
@@ -29,7 +29,7 @@ test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   await expect(page).toHaveURL('/login')
 
   // 6. LOGIN
-  await page.getByTestId('email-input').fill('heng2@warehouse.com')
+  await page.getByTestId('email-input').fill('heng4@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('login-button').click()
   await expect(page).toHaveURL('/dashboard')
