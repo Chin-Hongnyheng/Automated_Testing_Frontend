@@ -75,7 +75,7 @@ async function handleRegister() {
     })
     if (result?.data?.register?.accessToken) {
       auth.setToken(result.data.register.accessToken)
-      router.push('/dashboard')
+      await router.push('/dashboard')
     }
   } catch (e: any) {
     error.value = e.message || 'Registration failed'
