@@ -1,5 +1,4 @@
 name: Frontend Tests
-
 on:
   push:
     branches:
@@ -10,18 +9,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout frontend code
         uses: actions/checkout@v4
+
+      - name: Checkout backend repo
+        uses: actions/checkout@v4
+        with:
+          repository: Chin-Hongnyheng/Automated_Exam
+          path: backend
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        run: npm install
+        working-directory: backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+      - name: Start backend
+        working-directory: backend
+        env:
+          JWT_ACCESS_SECRET: ci-access-secret-key
+          JWT_REFRESH_SECRET: ci-refresh-secret-key
+          JWT_ACCESS_EXPIRES: 15m
+          JWT_REFRESH_EXPIRES: 7d
+          PORT: 3000
+        run: npm run start:prod &
+
+      - name: Wait for backend to be ready
+        run: npx wait-on http://localhost:3000/graphql --timeout 60000
+
+      - name: Install frontend dependencies
         run: npm install
 
-      - name: Build app
+      - name: Build frontend
         run: npm run build
 
       - name: Install Playwright browsers
