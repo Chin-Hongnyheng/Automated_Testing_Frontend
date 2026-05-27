@@ -59,16 +59,23 @@ jobs:
 
       - name: Build frontend
         run: npm run build
-
-      # ← NO manual preview start here, playwright.config.ts handles it
+        env:
+          VITE_GRAPHQL_URL: http://localhost:3000/graphql
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Debug - test register API # ← DEBUG STEP
+        run: |
+          curl -s -X POST http://localhost:3000/graphql \
+            -H "Content-Type: application/json" \
+            -d '{"query":"mutation { register(input: { userName: \"Nyheng5\", email: \"heng6@warehouse.com\", password: \"Password123!\", confirmPassword: \"Password123!\" }) { accessToken } }"}' \
+            | python3 -m json.tool
+
       - name: Run Playwright tests
         run: npx playwright test
         env:
-          CI: true # ← this triggers the webServer block in playwright.config.ts
+          CI: true
 
       - name: Upload test screenshots
         if: always()
