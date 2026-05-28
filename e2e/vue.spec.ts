@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test'
 test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   // 1. REGISTER
   await page.goto('/register')
-  await page.getByTestId('username-input').fill('Nyheng12')
-  await page.getByTestId('email-input').fill('heng12@warehouse.com')
+  await page.getByTestId('username-input').fill('Nyheng13')
+  await page.getByTestId('email-input').fill('heng13@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('confirm-password-input').fill('Password123!')
   await page.screenshot({ path: 'e2e/screenshots/1-register-page.png' })
@@ -30,7 +30,7 @@ test('Warehouse Full Flow: Register to Login', async ({ page }) => {
   await expect(page).toHaveURL('/login')
 
   // 6. LOGIN
-  await page.getByTestId('email-input').fill('heng12@warehouse.com')
+  await page.getByTestId('email-input').fill('heng13@warehouse.com')
   await page.getByTestId('password-input').fill('Password123!')
   await page.getByTestId('login-button').click()
   await page.waitForURL('**/dashboard', { timeout: 30000 }) // ← ADD THIS TOO
