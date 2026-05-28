@@ -57,6 +57,13 @@ jobs:
           echo "=== PORT CHECK ==="
           ss -tlnp | grep 3000 || echo "NOTHING running on port 3000"
 
+      - name: Debug - test register API
+        run: |
+          curl -s -X POST http://localhost:3000/graphql \
+            -H "Content-Type: application/json" \
+            -d '{"query":"mutation { register(input: { userName: \"testuser99\", email: \"test99@test.com\", password: \"Password123!\", confirmPassword: \"Password123!\" }) { accessToken } }"}' \
+            | python3 -m json.tool
+
       - name: Install frontend dependencies
         run: npm install
 
@@ -64,6 +71,10 @@ jobs:
         run: npm run build
         env:
           VITE_GRAPHQL_URL: http://localhost:3000/graphql
+
+      - name: Debug - check built JS has correct URL
+        run: |
+          grep -r "localhost:3000" dist/assets/ || echo "URL NOT FOUND IN BUILD"
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
