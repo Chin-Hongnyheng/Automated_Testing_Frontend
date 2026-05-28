@@ -1,4 +1,5 @@
 name: Frontend Tests
+
 on:
   push:
     branches:
@@ -7,6 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout frontend code
         uses: actions/checkout@v4
@@ -16,6 +18,7 @@ jobs:
         with:
           repository: Chin-Hongnyheng/Automated_Exam
           path: backend
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,10 +43,13 @@ jobs:
           PORT: 3000
         run: |
           npm run start:prod > /tmp/backend.log 2>&1 &
-          echo "Waiting for backend on port 3000..."
+          echo "Waiting for backend GraphQL..."
           for i in $(seq 1 30); do
-            if curl -s http://localhost:3000 > /dev/null 2>&1; then
-              echo "Backend is up!"
+            RESULT=$(curl -s -X POST http://localhost:3000/graphql \
+              -H "Content-Type: application/json" \
+              -d '{"query":"{ health }"}' 2>/dev/null)
+            if echo "$RESULT" | grep -q "OK"; then
+              echo "Backend GraphQL is up!"
               break
             fi
             echo "Attempt $i/30 - not ready yet..."
@@ -51,8 +57,6 @@ jobs:
           done
           echo "=== BACKEND LOG ==="
           cat /tmp/backend.log
-          echo "=== PORT CHECK ==="
-          ss -tlnp | grep 3000 || echo "NOTHING running on port 3000"
 
       - name: Install frontend dependencies
         run: npm install
@@ -63,19 +67,13 @@ jobs:
           VITE_GRAPHQL_URL: http://localhost:3000/graphql
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Debug - test register API # ← DEBUG STEP
-        run: |
-          curl -s -X POST http://localhost:3000/graphql \
-            -H "Content-Type: application/json" \
-            -d '{"query":"mutation { register(input: { userName: \"Nyheng5\", email: \"heng6@warehouse.com\", password: \"Password123!\", confirmPassword: \"Password123!\" }) { accessToken } }"}' \
-            | python3 -m json.tool
+        run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npx playwright test
+        run: npx playwright test --project=chromium
         env:
           CI: true
+          VITE_GRAPHQL_URL: http://localhost:3000/graphql
 
       - name: Upload test screenshots
         if: always()
@@ -113,5 +111,6 @@ jobs:
             Commit: ${{ github.sha }}
             Committer: ${{ github.actor }}
             Status: ${{ job.status }}
+
             Check details at:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

@@ -2,10 +2,9 @@ import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client/core
 import { setContext } from '@apollo/client/link/context'
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',
+  uri: import.meta.env.VITE_GRAPHQL_URL || 'http://localhost:3000/graphql',
 })
 
-// Automatically pulls the latest token from localStorage for all requests
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem('token')
   return {
