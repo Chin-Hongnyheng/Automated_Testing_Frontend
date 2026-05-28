@@ -43,13 +43,10 @@ jobs:
           PORT: 3000
         run: |
           npm run start:prod > /tmp/backend.log 2>&1 &
-          echo "Waiting for backend GraphQL..."
+          echo "Waiting for backend on port 3000..."
           for i in $(seq 1 30); do
-            RESULT=$(curl -s -X POST http://localhost:3000/graphql \
-              -H "Content-Type: application/json" \
-              -d '{"query":"{ health }"}' 2>/dev/null)
-            if echo "$RESULT" | grep -q "OK"; then
-              echo "Backend GraphQL is up!"
+            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+              echo "Backend is up!"
               break
             fi
             echo "Attempt $i/30 - not ready yet..."
@@ -57,6 +54,8 @@ jobs:
           done
           echo "=== BACKEND LOG ==="
           cat /tmp/backend.log
+          echo "=== PORT CHECK ==="
+          ss -tlnp | grep 3000 || echo "NOTHING running on port 3000"
 
       - name: Install frontend dependencies
         run: npm install
